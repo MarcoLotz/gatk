@@ -2,11 +2,13 @@ package org.broadinstitute.hellbender.utils.runtime;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.broadinstitute.hellbender.exceptions.GATKException;
 import org.broadinstitute.hellbender.exceptions.UserException;
 import org.broadinstitute.hellbender.utils.io.IOUtils;
 import org.broadinstitute.hellbender.GATKBaseTest;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -22,6 +24,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testReuseAfterError() {
+        // Skip on Windows: uses Unix-specific 'cat' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'cat' which is not available on Windows");
+        }
+
         ProcessController controller = new ProcessController();
 
         ProcessSettings job;
@@ -49,6 +56,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testEnvironment() {
+        // Skip on Windows: uses Unix-specific 'sh' shell command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'sh' which is not available on Windows");
+        }
+
         String key = "MY_NEW_VAR";
         String value = "value is here";
 
@@ -70,6 +82,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testDirectory() throws IOException {
+        // Skip on Windows: uses Unix-specific 'pwd' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'pwd' which is not available on Windows");
+        }
+
         File dir = createTempDir("temp.").getCanonicalFile();
 
         ProcessSettings job = new ProcessSettings(new String[] {"pwd"});
@@ -89,6 +106,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testReadStdInBuffer() {
+        // Skip on Windows: uses Unix-specific 'cat' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'cat' which is not available on Windows");
+        }
+
         String bufferText = "Hello from buffer";
         ProcessSettings job = new ProcessSettings(new String[] {"cat"});
         job.getStdoutSettings().setBufferSize(-1);
@@ -104,6 +126,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testReadStdInFile() {
+        // Skip on Windows: uses Unix-specific 'cat' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'cat' which is not available on Windows");
+        }
+
         File input = null;
         try {
             String fileText = "Hello from file";
@@ -126,6 +153,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testWriteStdOut() {
+        // Skip on Windows: echo output format differs (CRLF vs LF line endings)
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test expects Unix line ending behavior which differs on Windows");
+        }
+
         final String testInput = "Testing to stdout";
         final ProcessSettings job = new ProcessSettings(new String[] {"echo", testInput});
         job.getStdoutSettings().printStandard(true);
@@ -140,6 +172,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testErrorToOut() throws IOException {
+        // Skip on Windows: uses Unix-specific 'cat' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'cat' which is not available on Windows");
+        }
+
         File outFile = null;
         File errFile = null;
         try {
@@ -182,6 +219,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test
     public void testErrorToErr() throws IOException {
+        // Skip on Windows: uses Unix-specific 'cat' command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'cat' which is not available on Windows");
+        }
+
         File outFile = null;
         File errFile = null;
         try {
@@ -241,6 +283,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test(dataProvider = "truncateSizes")
     public void testTruncateBuffer(int truncateLen, int expectedLen) {
+        // Skip on Windows: echo output format differs (CRLF vs LF line endings)
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test expects Unix line ending behavior which differs on Windows");
+        }
+
         byte[] expected = Arrays.copyOf(TRUNCATE_OUTPUT_BYTES, expectedLen);
 
         String[] command = {"echo", TRUNCATE_TEXT};
@@ -293,6 +340,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test(dataProvider = "echoCommands")
     public void testEcho(EchoCommand script) throws IOException {
+        // Skip on Windows: echo output format differs (CRLF vs LF line endings)
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test expects Unix line ending behavior which differs on Windows");
+        }
+
         File outputFile = null;
         try {
             outputFile = GATKBaseTest.createTempFile("temp", "");
@@ -359,6 +411,11 @@ public final class ProcessControllerUnitTest extends GATKBaseTest {
 
     @Test(dataProvider = "scriptCommands")
     public void testScript(ScriptCommand script) throws IOException {
+        // Skip on Windows: uses Unix-specific 'sh' shell command
+        if (SystemUtils.IS_OS_WINDOWS) {
+            throw new SkipException("Test uses Unix command 'sh' which is not available on Windows");
+        }
+
         File scriptFile = null;
         File outputFile = null;
         try {
